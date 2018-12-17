@@ -1,0 +1,9 @@
+*~
+.*~
+*.pyc
+.project
+.pydevproject
+#*#
+*.h5
+.DS_Store
+*model*
