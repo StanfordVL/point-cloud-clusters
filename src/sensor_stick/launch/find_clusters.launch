@@ -1,0 +1,7 @@
+<launch>
+
+   <node pkg="sensor_stick" name="clustering" type="clustering.py" clear_params="true" output="screen">
+      <remap from="sensor_stick/point_cloud" to="camera/depth_registered/points" />
+   </node>
+
+</launch>

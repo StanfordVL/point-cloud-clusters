@@ -8,11 +8,17 @@ from filtering_helper import *
 def split_cloud(cloud):
 
   # Downsample the cloud as high resolution which comes with a computation cost
-  downsampled_cloud = do_voxel_grid_filter(point_cloud = cloud, LEAF_SIZE = 0.01)
+  downsampled_cloud = do_voxel_grid_filter(point_cloud = cloud, LEAF_SIZE = 0.005)
 
   # Get only information in our region of interest as we don't care about the other parts
   filtered_cloud = do_passthrough_filter(point_cloud = downsampled_cloud, 
-                                         name_axis = 'z', min_axis = 0.6, max_axis = 1.1)
+                                       name_axis = 'z', min_axis = 0.6, max_axis = 1.5)
+   
+  filtered_cloud = do_passthrough_filter(point_cloud = filtered_cloud, 
+                                       name_axis = 'x', min_axis = -0.2, max_axis = 0.2)
+   
+  filtered_cloud = do_passthrough_filter(point_cloud = filtered_cloud, 
+                                       name_axis = 'y', min_axis = 0.0, max_axis = 0.5)
 
   # Separate the table from everything else
   table_cloud, objects_cloud = do_ransac_plane_segmentation(filtered_cloud, max_distance = 0.01)
@@ -88,9 +94,9 @@ def pcl_callback(pcl_msg):
   clusters_cloud.from_list(colored_points)
 
   # Convert pcl data to ros messages
-  objects_msg = pcl_to_ros(objects_cloud)
-  table_msg = pcl_to_ros(table_cloud)
-  clusters_msg = pcl_to_ros(clusters_cloud)
+  objects_msg = pcl_to_ros(objects_cloud, pcl_msg.header.frame_id)
+  table_msg = pcl_to_ros(table_cloud, pcl_msg.header.frame_id)
+  clusters_msg = pcl_to_ros(clusters_cloud, pcl_msg.header.frame_id)
 
   # Publish ROS messages
   objects_publisher.publish(objects_msg)
@@ -102,14 +108,14 @@ if __name__ == '__main__':
 
   # ROS node initialization
   rospy.init_node('clustering', anonymous = True)
-
+  
   # Create Subscribers
-  subscriber = rospy.Subscriber("/sensor_stick/point_cloud", pc2.PointCloud2, pcl_callback, queue_size = 1)
+  subscriber = rospy.Subscriber("sensor_stick/point_cloud", pc2.PointCloud2, pcl_callback, queue_size = 1)
     
   # Create Publishers
-  objects_publisher = rospy.Publisher("/pcl_objects", PointCloud2, queue_size = 1)
-  table_publisher = rospy.Publisher("/pcl_table", PointCloud2, queue_size = 1)
-  clusters_publisher = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size = 1)
+  objects_publisher = rospy.Publisher("pcl_objects", PointCloud2, queue_size = 1)
+  table_publisher = rospy.Publisher("pcl_table", PointCloud2, queue_size = 1)
+  clusters_publisher = rospy.Publisher("pcl_cluster", PointCloud2, queue_size = 1)
   
   # Initialize color_list
   get_color_list.color_list = []

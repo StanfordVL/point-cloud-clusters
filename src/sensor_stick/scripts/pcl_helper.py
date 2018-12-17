@@ -49,7 +49,7 @@ def ros_to_pcl(ros_cloud):
     return pcl_data
 
 
-def pcl_to_ros(pcl_array):
+def pcl_to_ros(pcl_array, frame_id):
     """ Converts a pcl PointXYZRGB to a ROS PointCloud2 message
     
         Args:
@@ -61,7 +61,7 @@ def pcl_to_ros(pcl_array):
     ros_msg = PointCloud2()
 
     ros_msg.header.stamp = rospy.Time.now()
-    ros_msg.header.frame_id = "world"
+    ros_msg.header.frame_id = frame_id
 
     ros_msg.height = 1
     ros_msg.width = pcl_array.size
